@@ -1,0 +1,7 @@
+create TABLE account_users (
+		id SERIAL PRIMARY KEY,
+		account_id INT NOT NULL,
+		user_id INT NOT NULL,
+		created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,	
+		updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
