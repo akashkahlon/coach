@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"time"
 )
 
 type UserRole string
@@ -12,11 +13,13 @@ const (
 )
 
 type User struct {
-	ID       int    
-	Name string
-	Email string
-	PasswordHash string
-	Role UserRole
+	ID           int       `gorm:"primaryKey"`
+	Name         string    `gorm:"not null"`
+	Email        string    `gorm:"not null;unique"`
+	PasswordHash string    `gorm:"not null"`
+	Role         UserRole  `gorm:"not null"`
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }
 
 func (u *User) Validate() error {

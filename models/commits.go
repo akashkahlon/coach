@@ -3,16 +3,18 @@ package models
 import (
 	"encoding/json"
 	"errors"
+	"time"
 )
-
 type Commit struct {
-	ID       int
-	RepositoryID int
-	Sha string
-	Author string
-	AuthorEmail string
-	CommitMessage string
-	GithubDataAll json.RawMessage
+	ID            int            `gorm:"primaryKey"`
+	RepositoryID  int            `gorm:"not null"`
+	Sha           string         `gorm:"not null"`
+	Author        string         `gorm:"not null"`
+	AuthorEmail   string         `gorm:"not null"`
+	CommitMessage string         `gorm:"not null"`
+	GithubDataAll json.RawMessage `gorm:"type:jsonb"`
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
 
 func (c *Commit) Validate() error {

@@ -9,37 +9,47 @@ import (
 	"strings"
 
 	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/postgres"
+	migratePostgres "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-func InitDB() (*sql.DB, error) {
-    databaseURL := os.Getenv("DATABASE_URL")
-		if databaseURL == "" {
-				return nil, fmt.Errorf("DATABASE_URL must be set")
-		}
+func InitDB() (*gorm.DB, error) {
+	databaseURL := os.Getenv("DATABASE_URL")
+	if databaseURL == "" {
+		return nil, fmt.Errorf("DATABASE_URL must be set")
+	}
 
-		db, err := sql.Open("postgres", databaseURL)
-		if err != nil {
-				return nil, fmt.Errorf("error opening database: %v", err)
-		}
+	gormDB, err := gorm.Open(postgres.Open(databaseURL), &gorm.Config{
+		PrepareStmt: true,
+		
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to the database with GORM: %v", err)
+	}
 
-		err = db.Ping()
-		if err != nil {
-				return nil, fmt.Errorf("error pinging database: %v", err)
-		}
+	sqlDB, err := gormDB.DB()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get SQL DB from GORM: %v", err)
+	}
 
-		if err := migrationsApplied(db); err != nil {
-			return nil, fmt.Errorf("unapplied migrations present: %v", err)
-		}
+	err = sqlDB.Ping()
+	if err != nil {
+		return nil, fmt.Errorf("error pinging database: %v", err)
+	}
 
-		fmt.Println("Successfully connected to the database!")
-		return db, nil
+	if err := migrationsApplied(sqlDB); err != nil {
+		return nil, fmt.Errorf("unapplied migrations: %v", err)
+	}
+
+	fmt.Println("Successfully connected to the database and migrations checked!")
+	return gormDB, nil
 }
 
 func migrationsApplied(db *sql.DB) error {
-	driver, err := postgres.WithInstance(db, &postgres.Config{})
+	driver, err := migratePostgres.WithInstance(db, &migratePostgres.Config{})
 	if err != nil {
 			return fmt.Errorf("could not start the migration driver: %v", err)
 	}

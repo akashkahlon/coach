@@ -19,7 +19,16 @@ func main() {
 		if err != nil {
 				log.Fatalf("could not connect to the database: %v", err)
 		}
-		defer db.Close()
+
+		defer func() {
+			if sqlDB, err := db.DB(); err == nil {
+				if err := sqlDB.Close(); err != nil {
+					log.Fatalf("error closing the database: %v", err)
+				}
+			} else {
+				log.Fatalf("failed to retrieve underlying SQL DB: %v", err)
+			}
+		}()
 
     http.HandleFunc("/health", api.HealthCheckHandler)
 

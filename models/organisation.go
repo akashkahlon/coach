@@ -5,8 +5,8 @@ import (
 )
 
 type Organisation struct {
-	ID       int
-	Name     string
+	ID       int      `gorm:"primaryKey"`
+	Name     string   `gorm:"not null"`
 }
 
 func (o *Organisation) Validate() error {

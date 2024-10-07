@@ -3,16 +3,19 @@ package models
 import (
 	"encoding/json"
 	"errors"
+	"time"
 )
 
 type Repository struct {
-	ID       int
-	Name     string
-	FullName string
-	OrganisationID int
-	Private	bool
-	HtmlURL string
-	GithubDataAll json.RawMessage
+	ID             int            `gorm:"primaryKey"`
+	Name           string         `gorm:"not null"`
+	FullName       string         `gorm:"not null"`
+	OrganisationID int            `gorm:"not null"`
+	Private        bool           `gorm:"not null"`
+	HtmlURL        string         `gorm:"not null"`
+	GithubDataAll  json.RawMessage `gorm:"type:jsonb"`
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
 }
 
 func (a *Repository) Validate() error {
